@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import org.kordamp.ikonli.javafx.*?>
+
+<VBox spacing="25.0" styleClass="dashboard-container" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.avalon.desktop.ui.presentation.controller.DeviceController">
+   <children>
+      <VBox>
+         <children>
+            <Label styleClass="title-label" text="CONFIGURACIÓN DE PERIFÉRICOS" />
+            <Label styleClass="subtitle-label" text="Gestione impresoras y básculas conectadas" />
+         </children>
+      </VBox>
+
+      <HBox spacing="20.0">
+         <children>
+            <!-- Printer Config -->
+            <VBox spacing="15.0" styleClass="card" HBox.hgrow="ALWAYS">
+               <padding><Insets bottom="20" left="20" right="20" top="20" /></padding>
+               <children>
+                  <HBox alignment="CENTER_LEFT" spacing="10">
+                     <children>
+                        <FontIcon iconLiteral="mdi2p-printer" iconColor="#00FF88" iconSize="24" />
+                        <Label style="-fx-font-weight: bold; -fx-font-size: 16;" text="IMPRESORA TICKETERA" />
+                     </children>
+                  </HBox>
+                  <ComboBox fx:id="printerCombo" maxWidth="Infinity" promptText="Seleccionar impresora" />
+                  <Button onAction="#testPrint" styleClass="button" text="PROBAR IMPRESIÓN" />
+               </children>
+            </VBox>
+
+            <!-- Scale Config -->
+            <VBox spacing="15.0" styleClass="card" HBox.hgrow="ALWAYS">
+               <padding><Insets bottom="20" left="20" right="20" top="20" /></padding>
+               <children>
+                  <HBox alignment="CENTER_LEFT" spacing="10">
+                     <children>
+                        <FontIcon iconLiteral="mdi2s-scale" iconColor="#00FF88" iconSize="24" />
+                        <Label style="-fx-font-weight: bold; -fx-font-size: 16;" text="BÁSCULA (SERIAL COM)" />
+                     </children>
+                  </HBox>
+                  <ComboBox fx:id="portCombo" maxWidth="Infinity" promptText="Seleccionar puerto COM" />
+                  <HBox spacing="10">
+                     <children>
+                        <Button onAction="#connectScale" styleClass="button-primary" text="CONECTAR" />
+                        <Button onAction="#refreshDevices" styleClass="button" text="REFRESCAR" />
+                     </children>
+                  </HBox>
+                  <VBox alignment="CENTER" style="-fx-background-color: #050505; -fx-padding: 15; -fx-background-radius: 10;">
+                     <children>
+                        <Label style="-fx-text-fill: #8B6F3D;" text="PESO EN TIEMPO REAL" />
+                        <Label fx:id="lblWeight" style="-fx-font-size: 32; -fx-font-weight: bold; -fx-text-fill: #00FF88;" text="0.000 kg" />
+                     </children>
+                  </VBox>
+               </children>
+            </VBox>
+         </children>
+      </HBox>
+   </children>
+</VBox>

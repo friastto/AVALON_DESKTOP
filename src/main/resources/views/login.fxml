@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.text.*?>
+
+<?import javafx.geometry.Insets?>
+<StackPane fx:id="rootPane" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.avalon.desktop.ui.presentation.controller.LoginController">
+   <children>
+      <!-- Background Canvas for Water Animation -->
+      <Canvas fx:id="backgroundCanvas" height="600.0" width="800.0" />
+
+      <!-- Semi-transparent overlay for readability -->
+      <Region style="-fx-background-color: rgba(10, 10, 10, 0.4);" />
+
+      <VBox fx:id="loginBox" alignment="CENTER" maxWidth="400.0" spacing="30.0">
+         <children>
+            <VBox alignment="CENTER" spacing="5.0">
+               <children>
+                  <Label styleClass="title-label" text="AVALON DESKTOP">
+                     <font>
+                        <Font name="System Bold" size="36.0" />
+                     </font>
+                  </Label>
+                  <Label styleClass="subtitle-label" text="POWERED BY FRIAS ENGINEER" />
+               </children>
+            </VBox>
+
+            <VBox spacing="15.0">
+               <children>
+                  <TextField fx:id="usernameField" promptText="Username" />
+                  <PasswordField fx:id="passwordField" promptText="Password" />
+               </children>
+            </VBox>
+
+            <Button fx:id="loginButton" maxWidth="Infinity" onAction="#handleLogin" styleClass="button-primary" text="ENTRAR" />
+
+            <Label fx:id="errorLabel" textFill="#ff4444" />
+         </children>
+      </VBox>
+
+      <Label style="-fx-opacity: 0.05; -fx-rotate: -45; -fx-text-fill: white;  -fx-font-weight: bold;" text="AVALON" StackPane.alignment="BOTTOM_RIGHT">
+         <font>
+            <Font size="140.0" />
+         </font>
+         <StackPane.margin>
+            <!-- Esto aleja la palabra de los bordes para que no se corte -->
+            <Insets bottom="100.0" right="50.0" />
+         </StackPane.margin>
+      </Label>
+   </children>
+</StackPane>

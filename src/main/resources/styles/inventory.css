@@ -1,0 +1,43 @@
+.inventory-container {
+    -fx-padding: 20;
+    -fx-spacing: 20;
+    -fx-background-color: #0A0A0A;
+}
+
+.kpi-card {
+    -fx-background-color: #1A1A1A;
+    -fx-background-radius: 12;
+    -fx-padding: 15;
+    -fx-spacing: 5;
+    -fx-min-width: 200;
+}
+
+.kpi-low { -fx-border-color: #8B6F3D; -fx-border-width: 0 0 2 0; }
+.kpi-out { -fx-border-color: #ff4444; -fx-border-width: 0 0 2 0; }
+
+.status-normal { -fx-text-fill: #00FF88; -fx-font-weight: bold; }
+.status-low { -fx-text-fill: #FFCC00; -fx-font-weight: bold; }
+.status-critical { -fx-text-fill: #FF4444; -fx-font-weight: bold; }
+
+.action-button {
+    -fx-background-color: #1A1A1A;
+    -fx-text-fill: white;
+    -fx-cursor: hand;
+}
+
+.action-button:hover {
+    -fx-background-color: #2A2A2A;
+}
+
+.modal-bg {
+    -fx-background-color: rgba(0,0,0,0.8);
+}
+
+.form-container {
+    -fx-background-color: #1A1A1A;
+    -fx-padding: 30;
+    -fx-spacing: 20;
+    -fx-background-radius: 15;
+    -fx-border-color: #333;
+    -fx-border-radius: 15;
+}

@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import org.kordamp.ikonli.javafx.*?>
+
+<StackPane fx:id="rootPane" stylesheets="@../styles/inventory.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.avalon.desktop.ui.presentation.controller.InventoryController">
+   <children>
+      <VBox spacing="20.0" styleClass="inventory-container">
+         <children>
+            <!-- Header -->
+            <HBox alignment="CENTER_LEFT" spacing="20.0">
+               <children>
+                  <VBox>
+                     <children>
+                        <Label styleClass="title-label" style="-fx-font-size: 24;" text="GESTIÓN DE INVENTARIO" />
+                        <Label styleClass="subtitle-label" text="Control total de stock y bodega" />
+                     </children>
+                  </VBox>
+                  <Region HBox.hgrow="ALWAYS" />
+                  <Button onAction="#showAddProduct" styleClass="button-primary" text=" NUEVO PRODUCTO">
+                     <graphic>
+                        <FontIcon iconLiteral="mdi2p-plus-circle" iconColor="#0A0A0A" iconSize="20" />
+                     </graphic>
+                  </Button>
+               </children>
+            </HBox>
+
+            <!-- KPIs -->
+            <HBox spacing="15.0">
+               <children>
+                  <VBox styleClass="kpi-card" HBox.hgrow="ALWAYS">
+                     <children>
+                        <Label styleClass="kpi-title" text="TOTAL PRODUCTOS" />
+                        <Label fx:id="lblTotal" styleClass="kpi-value" text="0" />
+                     </children>
+                  </VBox>
+                  <VBox styleClass="kpi-card, kpi-low" HBox.hgrow="ALWAYS">
+                     <children>
+                        <Label styleClass="kpi-title" text="BAJO STOCK" />
+                        <Label fx:id="lblLow" styleClass="kpi-value" text="0" />
+                     </children>
+                  </VBox>
+                  <VBox styleClass="kpi-card, kpi-out" HBox.hgrow="ALWAYS">
+                     <children>
+                        <Label styleClass="kpi-title" text="AGOTADOS" />
+                        <Label fx:id="lblOut" styleClass="kpi-value" text="0" />
+                     </children>
+                  </VBox>
+                  <VBox styleClass="kpi-card" HBox.hgrow="ALWAYS">
+                     <children>
+                        <Label styleClass="kpi-title" text="VALOR BODEGA" />
+                        <Label fx:id="lblValue" styleClass="kpi-value" text="\$0.00" />
+                     </children>
+                  </VBox>
+               </children>
+            </HBox>
+
+            <!-- Toolbar -->
+            <HBox alignment="CENTER_LEFT" spacing="15.0">
+               <children>
+                  <TextField fx:id="searchField" prefWidth="350.0" promptText="Buscar por nombre..." />
+                  <Region HBox.hgrow="ALWAYS" />
+                  <Button onAction="#refreshData" styleClass="action-button">
+                     <graphic><FontIcon iconLiteral="mdi2r-refresh" iconColor="#00FF88" iconSize="20" /></graphic>
+                  </Button>
+               </children>
+            </HBox>
+
+            <!-- Table -->
+            <TableView fx:id="productTable" VBox.vgrow="ALWAYS">
+               <columns>
+                  <TableColumn fx:id="colId" prefWidth="60.0" text="ID" />
+                  <TableColumn fx:id="colName" prefWidth="200.0" text="PRODUCTO" />
+                  <TableColumn fx:id="colPrice" prefWidth="100.0" text="PRECIO" />
+                  <TableColumn fx:id="colStock" prefWidth="80.0" text="STOCK" />
+                  <TableColumn fx:id="colStatus" prefWidth="100.0" text="ESTADO" />
+                  <TableColumn fx:id="colActions" prefWidth="120.0" text="ACCIONES" />
+               </columns>
+            </TableView>
+         </children>
+      </VBox>
+
+      <!-- Overlay Modal -->
+      <VBox fx:id="modalOverlay" alignment="CENTER" styleClass="modal-bg" visible="false">
+         <children>
+            <VBox maxWidth="450.0" styleClass="form-container">
+               <children>
+                  <Label fx:id="modalTitle" styleClass="title-label" style="-fx-font-size: 20;" text="NUEVO PRODUCTO" />
+                  <TextField fx:id="fieldName" promptText="Nombre del producto" />
+                  <TextField fx:id="fieldBarcode" promptText="Código de Barras" />
+
+                  <HBox spacing="15.0">
+                     <children>
+                        <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+                           <children>
+                              <Label style="-fx-font-size: 10;" text="TIPO DE VENTA" />
+                              <ComboBox fx:id="comboType" maxWidth="Infinity" />
+                           </children>
+                        </VBox>
+                        <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+                           <children>
+                              <Label style="-fx-font-size: 10;" text="PRECIO ($)" />
+                              <TextField fx:id="fieldPrice" promptText="0.00" />
+                           </children>
+                        </VBox>
+                     </children>
+                  </HBox>
+
+                  <TextField fx:id="fieldStock" promptText="Stock Inicial" />
+
+                  <HBox spacing="10.0">
+                     <children>
+                        <Button maxWidth="Infinity" onAction="#hideModal" styleClass="button" text="CANCELAR" HBox.hgrow="ALWAYS" />
+                        <Button maxWidth="Infinity" onAction="#saveProduct" styleClass="button-primary" text="GUARDAR" HBox.hgrow="ALWAYS" />
+                     </children>
+                  </HBox>
+               </children>
+            </VBox>
+         </children>
+      </VBox>
+   </children>
+</StackPane>

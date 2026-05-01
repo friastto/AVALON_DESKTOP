@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import org.kordamp.ikonli.javafx.*?>
+
+<HBox prefHeight="768.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.avalon.desktop.ui.presentation.controller.DashboardController">
+   <children>
+      <!-- Sidebar -->
+      <VBox fx:id="sidebar" minWidth="0.0" prefWidth="250.0" styleClass="sidebar">
+         <children>
+            <VBox alignment="CENTER" prefHeight="100.0" spacing="10.0">
+               <children>
+                  <Label styleClass="title-label" style="-fx-font-size: 20;" text="AVALON" />
+               </children>
+            </VBox>
+            <Separator opacity="0.1" />
+            <VBox spacing="5.0" VBox.vgrow="ALWAYS">
+               <padding>
+                  <Insets top="20.0" />
+               </padding>
+               <children>
+                  <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#showPos" styleClass="nav-button" text=" POS">
+                     <graphic><FontIcon iconLiteral="mdi2c-cash-register" iconColor="#00FF88" iconSize="24" /></graphic>
+                  </Button>
+                  <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#showSales" styleClass="nav-button" text=" Ventas">
+                     <graphic><FontIcon iconLiteral="mdi2c-chart-line" iconColor="#00FF88" iconSize="24" /></graphic>
+                  </Button>
+                  <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#showInventory" styleClass="nav-button" text=" Inventario">
+                     <graphic><FontIcon iconLiteral="mdi2p-package-variant-closed" iconColor="#00FF88" iconSize="24" /></graphic>
+                  </Button>
+                  <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#showDevices" styleClass="nav-button" text=" Ajustes">
+                     <graphic><FontIcon iconLiteral="mdi2c-cog" iconColor="#00FF88" iconSize="24" /></graphic>
+                  </Button>
+               </children>
+            </VBox>
+            <Separator opacity="0.1" />
+            <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#handleLogout" styleClass="nav-button" text=" Salir">
+               <graphic><FontIcon iconLiteral="mdi2l-logout" iconColor="#ff4444" iconSize="24" /></graphic>
+               <VBox.margin><Insets bottom="20.0" /></VBox.margin>
+            </Button>
+         </children>
+      </VBox>
+
+      <!-- Main Content Container -->
+      <VBox HBox.hgrow="ALWAYS">
+         <children>
+            <HBox alignment="CENTER_LEFT" prefHeight="60.0" style="-fx-background-color: #050505; -fx-border-color: transparent transparent #1E1E1E transparent;">
+               <padding><Insets left="15.0" /></padding>
+               <children>
+                  <Button mnemonicParsing="false" onAction="#toggleSidebar" styleClass="icon-button">
+                     <graphic><FontIcon iconLiteral="mdi2m-menu" iconColor="#00FF88" iconSize="28" /></graphic>
+                  </Button>
+               </children>
+            </HBox>
+            <StackPane fx:id="contentArea" VBox.vgrow="ALWAYS" style="-fx-background-color: #0A0A0A;" />
+         </children>
+      </VBox>
+   </children>
+</HBox>

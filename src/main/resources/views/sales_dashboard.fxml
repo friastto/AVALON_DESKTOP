@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.chart.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import org.kordamp.ikonli.javafx.*?>
+
+<ScrollPane fitToWidth="true" style="-fx-background-color: transparent;" stylesheets="@../styles/sales_dashboard.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.avalon.desktop.ui.presentation.controller.SalesDashboardController">
+   <content>
+      <VBox spacing="25.0" styleClass="dashboard-container">
+         <children>
+            <!-- Header & Filters -->
+            <HBox alignment="CENTER_LEFT" spacing="20.0">
+               <children>
+                  <VBox>
+                     <children>
+                        <Label styleClass="title-label" style="-fx-font-size: 26;" text="PANEL DE VENTAS" />
+                        <Label styleClass="subtitle-label" text="Análisis detallado de ingresos" />
+                     </children>
+                  </VBox>
+                  <Region HBox.hgrow="ALWAYS" />
+                  <HBox spacing="10.0" styleClass="chart-container" style="-fx-padding: 5;">
+                     <children>
+                        <ToggleButton fx:id="btnToday" selected="true" styleClass="filter-button" text="Hoy" />
+                        <ToggleButton fx:id="btnWeek" styleClass="filter-button" text="Semana" />
+                        <ToggleButton fx:id="btnMonth" styleClass="filter-button" text="Mes" />
+                     </children>
+                  </HBox>
+               </children>
+            </HBox>
+
+            <!-- KPIs -->
+            <HBox spacing="20.0">
+               <children>
+                  <VBox styleClass="kpi-card" HBox.hgrow="ALWAYS">
+                     <children>
+                        <Label styleClass="kpi-title" text="VENTAS TOTALES" />
+                        <Label fx:id="lblTotalSales" styleClass="kpi-value" text="\$0.00" />
+                        <FontIcon iconLiteral="mdi2c-currency-usd" iconColor="#00FF88" iconSize="24" />
+                     </children>
+                  </VBox>
+                  <VBox styleClass="kpi-card" HBox.hgrow="ALWAYS">
+                     <children>
+                        <Label styleClass="kpi-title" text="Nº DE TRANSACCIONES" />
+                        <Label fx:id="lblSalesCount" styleClass="kpi-value" text="0" />
+                        <FontIcon iconLiteral="mdi2c-cart-outline" iconColor="#00FF88" iconSize="24" />
+                     </children>
+                  </VBox>
+                  <VBox styleClass="kpi-card" HBox.hgrow="ALWAYS">
+                     <children>
+                        <Label styleClass="kpi-title" text="TICKET PROMEDIO" />
+                        <Label fx:id="lblAverageSale" styleClass="kpi-value" text="\$0.00" />
+                        <FontIcon iconLiteral="mdi2t-trending-up" iconColor="#00FF88" iconSize="24" />
+                     </children>
+                  </VBox>
+               </children>
+            </HBox>
+
+            <!-- Main Chart and Top Products -->
+            <HBox spacing="25.0" VBox.vgrow="ALWAYS">
+               <children>
+                  <!-- Line Chart -->
+                  <VBox spacing="10.0" styleClass="chart-container" HBox.hgrow="ALWAYS">
+                     <children>
+                        <Label styleClass="kpi-title" text="FLUJO DE INGRESOS" />
+                        <LineChart fx:id="salesChart" createSymbols="true" legendVisible="false" prefHeight="400.0">
+                          <xAxis>
+                            <CategoryAxis side="BOTTOM" />
+                          </xAxis>
+                          <yAxis>
+                            <NumberAxis side="LEFT" />
+                          </yAxis>
+                        </LineChart>
+                     </children>
+                  </VBox>
+
+                  <!-- Top Products Table -->
+                  <VBox prefWidth="350.0" spacing="15.0" styleClass="chart-container">
+                     <children>
+                        <Label styleClass="kpi-title" text="TOP 5 PRODUCTOS" />
+                        <TableView fx:id="topProductsTable" prefHeight="380.0">
+                          <columns>
+                            <TableColumn fx:id="colProdName" prefWidth="200.0" text="PRODUCTO" />
+                            <TableColumn fx:id="colProdQty" prefWidth="100.0" text="CANT." />
+                          </columns>
+                        </TableView>
+                     </children>
+                  </VBox>
+               </children>
+            </HBox>
+         </children>
+      </VBox>
+   </content>
+</ScrollPane>

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import org.kordamp.ikonli.javafx.*?>
+
+<VBox spacing="15.0" styleClass="pos-container" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.avalon.desktop.ui.presentation.controller.PosController">
+   <children>
+      <!-- Scanner & Scale Bar -->
+      <HBox alignment="CENTER_LEFT" spacing="15.0" styleClass="card" style="-fx-padding: 15;">
+         <children>
+            <VBox spacing="5.0">
+               <children>
+                  <Label style="-fx-text-fill: #00FF88; -fx-font-weight: bold;" text="LECTOR DE CÓDIGO / PRODUCTO" />
+                  <TextField fx:id="scannerField" onAction="#handleScan" prefWidth="350.0" promptText="Escanee o escriba código..." style="-fx-font-size: 16; -fx-border-color: #00FF88;" />
+               </children>
+            </VBox>
+
+            <Separator orientation="VERTICAL" />
+
+            <!-- Indicador de Báscula -->
+            <VBox alignment="CENTER" spacing="5.0" style="-fx-background-color: #050505; -fx-padding: 5 20; -fx-background-radius: 8; -fx-border-color: #8B6F3D; -fx-border-radius: 8;">
+               <children>
+                  <Label style="-fx-text-fill: #8B6F3D; -fx-font-size: 10;" text="BÁSCULA EN VIVO" />
+                  <Label fx:id="lblLiveWeight" style="-fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: #00FF88;" text="0.000 kg" />
+               </children>
+            </VBox>
+
+            <VBox spacing="5.0">
+               <children>
+                  <Label style="-fx-text-fill: #8B6F3D; -fx-font-weight: bold;" text="CANT." />
+                  <TextField fx:id="quantityField" prefWidth="80.0" text="1" style="-fx-font-size: 16; -fx-alignment: center;" />
+               </children>
+            </VBox>
+
+            <Region HBox.hgrow="ALWAYS" />
+            <VBox alignment="CENTER_RIGHT">
+               <children>
+                  <Label styleClass="subtitle-label" text="TOTAL A PAGAR" />
+                  <Label fx:id="totalLabel" styleClass="title-label" style="-fx-font-size: 32;" text="\$0.00" />
+               </children>
+            </VBox>
+         </children>
+      </HBox>
+
+      <HBox spacing="20.0" VBox.vgrow="ALWAYS">
+         <children>
+            <!-- Carrito -->
+            <VBox spacing="10.0" styleClass="card" HBox.hgrow="ALWAYS">
+               <padding><Insets bottom="15.0" left="15.0" right="15.0" top="15.0" /></padding>
+               <children>
+                  <TableView fx:id="cartTable" VBox.vgrow="ALWAYS">
+                    <columns>
+                      <TableColumn fx:id="colCartProduct" prefWidth="200.0" text="PRODUCTO" />
+                      <TableColumn fx:id="colCartPrice" prefWidth="90.0" text="PRECIO" />
+                      <TableColumn fx:id="colCartQty" prefWidth="70.0" text="CANT / PESO" />
+                      <TableColumn fx:id="colCartTotal" prefWidth="100.0" text="TOTAL" />
+                    </columns>
+                  </TableView>
+                  <Button maxWidth="Infinity" onAction="#handleCheckout" prefHeight="60.0" styleClass="button-primary" text="COMPLETAR VENTA (F5)">
+                     <graphic><FontIcon iconLiteral="mdi2c-cash-multiple" iconColor="#0A0A0A" iconSize="30" /></graphic>
+                  </Button>
+               </children>
+            </VBox>
+
+            <!-- Búsqueda Manual -->
+            <VBox prefWidth="450.0" spacing="10.0" styleClass="card">
+               <padding><Insets bottom="15.0" left="15.0" right="15.0" top="15.0" /></padding>
+               <children>
+                  <TextField fx:id="searchField" promptText="Buscar producto manualmente..." />
+                  <TableView fx:id="productTableView" VBox.vgrow="ALWAYS">
+                    <columns>
+                      <TableColumn fx:id="colProdName" prefWidth="200.0" text="NOMBRE" />
+                      <TableColumn fx:id="colProdPrice" prefWidth="80.0" text="PRECIO" />
+                      <TableColumn fx:id="colProdStock" prefWidth="80.0" text="STOCK" />
+                    </columns>
+                  </TableView>
+               </children>
+            </VBox>
+         </children>
+      </HBox>
+   </children>
+</VBox>
