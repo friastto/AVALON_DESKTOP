@@ -21,8 +21,8 @@ import java.util.Optional;
 @Singleton
 public class UpdateService {
     private final String CURRENT_VERSION = "1.0.0";
-    private final String REPO_OWNER = "tu_usuario"; 
-    private final String REPO_NAME = "tu_repo";       
+    private final String REPO_OWNER = "friastto";
+    private final String REPO_NAME = "AVALON_DESKTOP";
     
     private final GithubReleaseClient client;
     private final DoubleProperty downloadProgress = new SimpleDoubleProperty(0);

@@ -18,6 +18,7 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) {
+        System.out.println("✅ Entrando a start()");
         Injector injector = Guice.createInjector(new AppModule());
         
         ViewLoader viewLoader = injector.getInstance(ViewLoader.class);
@@ -27,8 +28,10 @@ public class Main extends Application {
         
         // Ejecutar verificación en hilo separado para no bloquear el inicio
         new Thread(() -> {
+
             Optional<ReleaseInfo> newRelease = updateService.checkForUpdates();
-            
+
+            System.out.println("entro en modo buscar release de git ");
             Platform.runLater(() -> {
                 if (newRelease.isPresent()) {
                     Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
@@ -51,6 +54,12 @@ public class Main extends Application {
     }
 
     public static void main(String[] args) {
-        launch(args);
+        System.out.println("🚀 Iniciando AvalonDesktop...");
+        try {
+            launch(args);
+        } catch (Exception e) {
+            System.err.println("❌ Error en launch:");
+            e.printStackTrace();
+        }
     }
 }
