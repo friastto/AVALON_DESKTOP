@@ -7,7 +7,7 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
-import org.avalon.desktop.Main;
+import org.avalon.desktop.AvalonDesktopApp;
 import org.avalon.desktop.core.update.github.GithubReleaseClient;
 import org.avalon.desktop.core.update.github.ReleaseInfo;
 import org.slf4j.Logger;
@@ -31,7 +31,7 @@ import java.util.concurrent.CompletableFuture;
 public class UpdateService {
     private static final Logger logger = LoggerFactory.getLogger(UpdateService.class);
 
-    private final String CURRENT_VERSION = "1.0.0";
+    private final String CURRENT_VERSION = "1.0.1";
     private final String REPO_OWNER = "friastto";
     private final String REPO_NAME = "AVALON_DESKTOP";
     
@@ -153,7 +153,7 @@ public class UpdateService {
         // Obtener la ruta de la carpeta raíz de la aplicación jpackage actual
         // Si la app se ejecuta como C:\path\to\AvalonDesktopApp\app\AvalonDesktop.exe
         // Necesitamos C:\path\to\AvalonDesktopApp
-        URI currentAppUri = Main.class.getProtectionDomain().getCodeSource().getLocation().toURI();
+        URI currentAppUri = AvalonDesktopApp.class.getProtectionDomain().getCodeSource().getLocation().toURI();
         Path currentAppRootPath;
 
         if (currentAppUri.getScheme().equals("file")) {

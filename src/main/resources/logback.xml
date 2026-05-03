@@ -1,11 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <configuration>
+
+    <!-- Define el directorio base para los logs -->
+    <property name="LOG_DIR" value="${user.home}/.avalon-desktop/logs"/>
+
+    <!-- Appender para la consola (opcional, puedes quitarlo si solo quieres logs en archivo) -->
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
     </appender>
 
-    <root level="info">
-        <appender-ref ref="STDOUT" />
+    <!-- Appender para archivo de logs con rotación por tamaño y tiempo -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_DIR}/avalon-desktop.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- Rotación diaria -->
+            <fileNamePattern>${LOG_DIR}/avalon-desktop.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <!-- Cada archivo de log no excederá 10MB -->
+                <maxFileSize>10MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+            <!-- Mantener un máximo de 30 días de archivos de log -->
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Configuración del logger raíz -->
+    <root level="INFO"> <!-- Puedes cambiar a DEBUG para más detalle, o ERROR para menos -->
+        <appender-ref ref="STDOUT" /> <!-- Para ver logs en consola -->
+        <appender-ref ref="FILE" />   <!-- Para escribir logs en archivo -->
     </root>
+
+    <!-- Opcional: Configurar niveles de log específicos para paquetes -->
+    <logger name="org.avalon.desktop" level="DEBUG" additivity="false">
+        <appender-ref ref="STDOUT" />
+        <appender-ref ref="FILE" />
+    </logger>
+    <logger name="org.xerial.sqlitejdbc" level="WARN" /> <!-- Silenciar warnings excesivos de SQLite -->
+
 </configuration>

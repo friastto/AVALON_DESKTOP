@@ -8,6 +8,7 @@ module org.avalon.desktop {
     requires org.xerial.sqlitejdbc;
     requires org.kordamp.ikonli.javafx;
     requires org.kordamp.ikonli.materialdesign2;
+    requires java.naming; // Añadido para resolver ClassNotFoundException: javax.naming.NamingException
     
     // Inyección
     requires com.google.guice;
@@ -49,8 +50,8 @@ module org.avalon.desktop {
     opens org.avalon.desktop.core.devices.scale to com.google.guice;
     opens org.avalon.desktop.sales.application.service to com.google.guice;
     opens org.avalon.desktop.product.application.service to com.google.guice;
-    opens org.avalon.desktop.core.update.github to com.fasterxml.jackson.databind;
-    opens org.avalon.desktop.core.update to com.google.guice;
+    opens org.avalon.desktop.core.update.github to com.fasterxml.jackson.databind, com.google.guice;
+    opens org.avalon.desktop.core.update to com.google.guice, javafx.graphics;
     opens org.avalon.desktop.sales.application.usecase to com.google.guice;
     opens org.avalon.desktop.sales.domain.model to com.google.guice;
     opens org.avalon.desktop.product.domain.model to com.google.guice;

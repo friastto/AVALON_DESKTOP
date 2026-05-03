@@ -6,7 +6,7 @@
 
     <groupId>org.avalon</groupId>
     <artifactId>AvalonDesktop</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <name>AvalonDesktop</name>
 
     <properties>
@@ -28,7 +28,7 @@
         <jlink.output.dir>${project.build.directory}/jlink</jlink.output.dir>
         <final.app.image.dir>${jpackage.output.dir}/${jpackage.launcher.name}</final.app.image.dir>
         <final.zip.path>${project.build.directory}/${jpackage.app.name}-${project.version}.zip</final.zip.path>
-        <app.main.class>org.avalon.desktop.Main</app.main.class>
+        <app.main.class>org.avalon.desktop.AvalonDesktopApp</app.main.class> <!-- CORREGIDO: Main class -->
         <app.vendor>Avalon Solutions</app.vendor>
         <app.icon>${project.basedir}/src/main/resources/icon.ico</app.icon>
 
@@ -192,7 +192,7 @@
                                     <arg value="--module-path" />
                                     <arg value="${libs.dir}" /> <!-- Indica a jlink dónde están los módulos de JavaFX -->
                                     <arg value="--add-modules" />
-                                    <arg value="javafx.controls,javafx.fxml,javafx.graphics,javafx.base,java.desktop,java.logging,java.net.http,java.sql" />
+                                    <arg value="javafx.controls,javafx.fxml,javafx.graphics,javafx.base,java.desktop,java.logging,java.net.http,java.sql,java.naming" /> <!-- CORREGIDO: Añadido java.naming -->
                                     <arg value="--type" />
                                     <arg value="app-image" /> <!-- Crea una carpeta portable -->
                                     <arg value="--dest" />
@@ -205,6 +205,7 @@
                                     <arg value="${app.vendor}" />
                                     <arg value="--icon" />
                                     <arg value="${app.icon}" />
+                                    <!--<arg value="-win-console" /> Agregamos esto para ver errores -->
                                     <!-- Añade aquí cualquier otro argumento de jpackage que necesites -->
                                 </exec>
 

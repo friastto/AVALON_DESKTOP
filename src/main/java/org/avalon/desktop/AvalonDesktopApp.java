@@ -10,20 +10,23 @@ import javafx.stage.Stage;
 import org.avalon.desktop.config.AppModule;
 import org.avalon.desktop.core.update.UpdateService;
 import org.avalon.desktop.core.update.github.ReleaseInfo;
-import org.avalon.desktop.ui.navigation.ViewLoader;
+import org.avalon.desktop.ui.SceneManager; // Usar SceneManager para la navegación principal
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.net.URISyntaxException;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
-public class Main extends Application {
+public class AvalonDesktopApp extends Application {
 
-    private static final Logger logger = LoggerFactory.getLogger(Main.class);
+    private static final Logger logger = LoggerFactory.getLogger(AvalonDesktopApp.class);
 
     @Override
     public void start(Stage primaryStage) {
@@ -51,8 +54,9 @@ public class Main extends Application {
         logger.info("✅ Entrando a start()");
         Injector injector = Guice.createInjector(new AppModule());
         
-        ViewLoader viewLoader = injector.getInstance(ViewLoader.class);
-        viewLoader.setPrimaryStage(primaryStage);
+        // Usar SceneManager para la navegación principal
+        SceneManager sceneManager = injector.getInstance(SceneManager.class);
+        sceneManager.setPrimaryStage(primaryStage);
         
         UpdateService updateService = injector.getInstance(UpdateService.class);
         
@@ -77,11 +81,29 @@ public class Main extends Application {
                                     // Descarga exitosa, crear el script de actualización
                                     try {
                                         updateService.createUpdateScript(downloadedPath);
-                                        Alert infoAlert = new Alert(Alert.AlertType.INFORMATION);
-                                        infoAlert.setTitle("Actualización Descargada");
-                                        infoAlert.setHeaderText("Actualización lista para instalar.");
-                                        infoAlert.setContentText("La nueva versión se ha descargado y se aplicará la próxima vez que inicie la aplicación.");
-                                        infoAlert.showAndWait();
+                                        
+                                        // --- MODIFICACIÓN AQUÍ: Preguntar al usuario si desea reiniciar ahora ---
+                                        Alert restartAlert = new Alert(Alert.AlertType.CONFIRMATION);
+                                        restartAlert.setTitle("Actualización Descargada");
+                                        restartAlert.setHeaderText("Actualización lista para instalar.");
+                                        restartAlert.setContentText("La nueva versión se ha descargado y se aplicará. ¿Desea reiniciar la aplicación AHORA para aplicar la actualización?");
+                                        
+                                        Optional<ButtonType> restartResponse = restartAlert.showAndWait();
+
+                                        if (restartResponse.isPresent() && restartResponse.get() == ButtonType.OK) {
+                                            logger.info("Usuario eligió reiniciar ahora para aplicar la actualización.");
+                                            Platform.exit(); 
+                                            System.exit(0);
+                                        } else {
+                                            logger.info("Usuario eligió reiniciar más tarde. La actualización se aplicará en el próximo inicio.");
+                                            Alert infoAlert = new Alert(Alert.AlertType.INFORMATION);
+                                            infoAlert.setTitle("Actualización Pendiente");
+                                            infoAlert.setHeaderText("Actualización programada.");
+                                            infoAlert.setContentText("La actualización se aplicará la próxima vez que inicie la aplicación.");
+                                            infoAlert.showAndWait();
+                                        }
+                                        // --- FIN MODIFICACIÓN ---
+
                                     } catch (IOException | URISyntaxException | IllegalStateException e) {
                                         logger.error("Error al crear el script de actualización: {}", e.getMessage(), e);
                                         Alert errorApplyAlert = new Alert(Alert.AlertType.ERROR);
@@ -103,23 +125,43 @@ public class Main extends Application {
                     } 
                     // Mover la carga del login aquí, fuera del if/else del response, pero dentro del Platform.runLater
                     // Esto asegura que el login se carga después de que el usuario interactúa con el alert inicial
-                    viewLoader.loadView("/views/login.fxml", "Avalon Desktop - Login");
-
+                    sceneManager.showLoginScreen(); // Usar SceneManager
                 } else {
                     // No hay actualizaciones, cargar la vista de login directamente
-                    viewLoader.loadView("/views/login.fxml", "Avalon Desktop - Login");
+                    sceneManager.showLoginScreen(); // Usar SceneManager
                 }
             });
-        }).start();
+        }, "UpdateCheckThread").start();
     }
 
     public static void main(String[] args) {
-        System.setProperty("jssc.tmpdir", System.getProperty("user.home") + "/AppData/Local/AvalonDesktop/jSerialComm_native");
-        logger.info("🚀 Iniciando AvalonDesktop...");
+        PrintStream consoleLogStream = null;
         try {
+            // Configurar el directorio de logs
+            Path logDir = Paths.get(System.getProperty("user.home"), ".avalon-desktop", "logs");
+            Files.createDirectories(logDir); // Asegurarse de que el directorio exista
+
+            // Redirigir System.out y System.err a un archivo
+            Path consoleLogFile = logDir.resolve("console-output.log");
+            consoleLogStream = new PrintStream(new FileOutputStream(consoleLogFile.toFile(), true)); // 'true' para modo append
+            System.setOut(consoleLogStream);
+            System.setErr(consoleLogStream);
+
+            // Ahora, cualquier System.out.println o System.err.println irá a este archivo
+            System.setProperty("jssc.tmpdir", System.getProperty("user.home") + "/AppData/Local/AvalonDesktop/jSerialComm_native");
+            logger.info("🚀 Iniciando AvalonDesktop...");
             launch(args);
         } catch (Exception e) {
-            logger.error("❌ Error en launch:", e);
+            // Capturar cualquier excepción que ocurra antes o durante launch()
+            logger.error("❌ Error fatal en la aplicación:", e);
+            // También imprimir al System.err original si es posible, o al nuevo System.err (el archivo)
+            if (System.err != null) { // Asegurarse de que System.err no sea null si la redirección falló
+                e.printStackTrace(System.err);
+            }
+        } finally {
+            if (consoleLogStream != null) {
+                consoleLogStream.close();
+            }
         }
     }
 }
