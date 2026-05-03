@@ -30,6 +30,7 @@ public class SqliteProductRepository implements ProductRepository {
         );
     }
 
+    // --- Métodos no transaccionales ---
     @Override
     public List<Product> findAll() {
         List<Product> products = new ArrayList<>();
@@ -123,11 +124,18 @@ public class SqliteProductRepository implements ProductRepository {
     }
 
     @Override
-    public void updateStock(Long productId, Integer quantity) {
+    public void updateStock(Long productId, Double quantity) {
+        try (Connection conn = dbManager.getConnection()) {
+            updateStock(productId, quantity, conn);
+        } catch (SQLException e) { e.printStackTrace(); }
+    }
+
+    // --- Métodos transaccionales ---
+    @Override
+    public void updateStock(Long productId, Double quantity, Connection conn) {
         String sql = "UPDATE products SET stock = stock + ? WHERE id = ?";
-        try (Connection conn = dbManager.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setInt(1, quantity);
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, quantity.intValue()); // Redondeamos a entero para el stock
             pstmt.setLong(2, productId);
             pstmt.executeUpdate();
         } catch (SQLException e) { e.printStackTrace(); }

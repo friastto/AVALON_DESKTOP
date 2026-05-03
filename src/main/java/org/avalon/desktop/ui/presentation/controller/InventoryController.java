@@ -99,8 +99,8 @@ public class InventoryController implements Initializable {
             {
                 editBtn.setGraphic(new FontIcon("mdi2p-pencil"));
                 deleteBtn.setGraphic(new FontIcon("mdi2t-trash-can"));
-                editBtn.getStyleClass().add("action-button");
-                deleteBtn.getStyleClass().add("action-button");
+                editBtn.getStyleClass().add("edit-button"); // Clase de estilo específica para editar
+                deleteBtn.getStyleClass().add("delete-button"); // Clase de estilo específica para eliminar
                 editBtn.setOnAction(e -> showEditProduct(getTableView().getItems().get(getIndex())));
                 deleteBtn.setOnAction(e -> {
                     inventoryService.deleteProduct(getTableView().getItems().get(getIndex()).id());

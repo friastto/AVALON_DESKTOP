@@ -36,7 +36,7 @@ public class InventoryService {
     }
 
     public void adjustStock(Long id, int amount) {
-        productRepository.updateStock(id, amount);
+        productRepository.updateStock(id, (double) amount);
     }
 
     public InventoryStats getStats() {

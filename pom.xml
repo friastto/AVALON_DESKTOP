@@ -16,9 +16,26 @@
         <javafx.version>21.0.2</javafx.version>
         <guice.version>7.0.0</guice.version>
         <sqlite.version>3.45.1.0</sqlite.version>
-        <slf4j.version>2.0.12</slf4j.version>
+        <slf4j.version>2.0.12</slf4j.version> <!-- CORREGIDO: slf44j.version a slf4j.version -->
         <logback.version>1.5.0</logback.version>
-        <jackson.version>2.17.0</jackson.version> <!-- Versión de Jackson -->
+        <jackson.version>2.17.0</jackson.version>
+
+        <!-- Propiedades para jlink y jpackage -->
+        <jlink.image.name>AvalonDesktopApp</jlink.image.name>
+        <jpackage.app.name>AvalonDesktopApp</jpackage.app.name>
+        <jpackage.launcher.name>AvalonDesktop</jpackage.launcher.name>
+        <jpackage.output.dir>${project.build.directory}/jpackage</jpackage.output.dir>
+        <jlink.output.dir>${project.build.directory}/jlink</jlink.output.dir>
+        <final.app.image.dir>${jpackage.output.dir}/${jpackage.launcher.name}</final.app.image.dir>
+        <final.zip.path>${project.build.directory}/${jpackage.app.name}-${project.version}.zip</final.zip.path>
+        <app.main.class>org.avalon.desktop.Main</app.main.class>
+        <app.vendor>Avalon Solutions</app.vendor>
+        <app.icon>${project.basedir}/src/main/resources/icon.ico</app.icon>
+
+        <!-- Propiedades para resolver errores de símbolos en el IDE -->
+        <jpackage.cmd>${java.home}/bin/jpackage</jpackage.cmd>
+        <app.jar>${project.build.directory}/${project.build.finalName}.jar</app.jar>
+        <libs.dir>${project.build.directory}/libs</libs.dir>
     </properties>
 
     <dependencies>
@@ -26,19 +43,21 @@
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
             <version>${javafx.version}</version>
-            <classifier>win</classifier>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
             <version>${javafx.version}</version>
-            <classifier>win</classifier>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-graphics</artifactId>
             <version>${javafx.version}</version>
-            <classifier>win</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-base</artifactId>
+            <version>${javafx.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.inject</groupId>
@@ -75,20 +94,17 @@
             <artifactId>jSerialComm</artifactId>
             <version>2.10.4</version>
         </dependency>
-        <!-- JSON Parsing con Jackson -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <version>${jackson.version}</version>
         </dependency>
-        <!-- Eliminamos Gson si estaba -->
-        <!--
+        <!-- Para encriptar contraseñas de forma segura -->
         <dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
-            <version>2.10.1</version>
+            <groupId>org.mindrot</groupId>
+            <artifactId>jbcrypt</artifactId>
+            <version>0.4</version>
         </dependency>
-        -->
     </dependencies>
 
 
@@ -99,41 +115,104 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.11.0</version>
                 <configuration>
-                    <release>21</release>
+                    <release>${maven.compiler.source}</release>
                 </configuration>
             </plugin>
 
+            <!-- 1. Plugin para jlink (crea la runtime image) -->
+            <plugin>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-maven-plugin</artifactId>
+                <version>0.0.8</version> <!-- Versión 0.0.8 como solicitado -->
+                <configuration>
+                    <mainClass>${app.main.class}</mainClass>
+                </configuration>
+                <!-- jlink removido de aquí porque no soporta módulos automáticos como Guice -->
+            </plugin>
+
+            <!-- 2. Copiar todas las dependencias a target/libs -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>3.5.0</version>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.6.1</version>
                 <executions>
                     <execution>
-                        <phase>package</phase>
+                        <id>copy-dependencies</id>
+                        <phase>prepare-package</phase>
                         <goals>
-                            <goal>shade</goal>
+                            <goal>copy-dependencies</goal>
                         </goals>
                         <configuration>
-                            <createDependencyReducedPom>false</createDependencyReducedPom>
-                            <transformers>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <!-- ASEGÚRATE QUE ESTA RUTA SEA REAL -->
-                                    <mainClass>org.softfriascorporations.avalondesktop.Launcher</mainClass>
-                                </transformer>
-                                <!-- ESTO ES VITAL PARA SQLITE Y LOGGING -->
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
-                            </transformers>
-                            <filters>
-                                <filter>
-                                    <artifact>*:*</artifact>
-                                    <excludes>
-                                        <exclude>module-info.class</exclude>
-                                        <exclude>META-INF/*.SF</exclude>
-                                        <exclude>META-INF/*.DSA</exclude>
-                                        <exclude>META-INF/*.RSA</exclude>
-                                    </excludes>
-                                </filter>
-                            </filters>
+                            <outputDirectory>${libs.dir}</outputDirectory>
+                            <includeScope>runtime</includeScope>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- 3. Plugin para ejecutar jpackage y comprimir a ZIP -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>3.1.0</version> <!-- Versión reciente de Antrun -->
+                <executions>
+                    <execution>
+                        <id>jpackage-and-zip</id>
+                        <phase>package</phase> <!-- Se ejecuta después de 'package', que incluye 'jlink' -->
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <!-- Copiar el JAR principal a la carpeta de libs para que jpackage lo vea -->
+                                <copy file="${app.jar}" todir="${libs.dir}" />
+
+                                <!-- Verificar si jpackage existe (para Windows y Unix/Linux/macOS) -->
+                                <exec executable="cmd" failonerror="true" osfamily="windows">
+                                    <arg value="/c" />
+                                    <arg value="if not exist &quot;${jpackage.cmd}.exe&quot; (echo ERROR: jpackage.exe not found at ${jpackage.cmd}.exe. Make sure JDK is installed and in PATH. &amp; exit /b 1)" />
+                                </exec>
+                                <exec executable="bash" failonerror="true" osfamily="unix">
+                                    <arg value="-c" />
+                                    <arg value="[ -f &quot;${jpackage.cmd}&quot; ] || { echo ERROR: jpackage not found at ${jpackage.cmd}. Make sure JDK is installed and in PATH.; exit 1; }" />
+                                </exec>
+
+                                <!-- Eliminar salida anterior de jpackage -->
+                                <delete dir="${jpackage.output.dir}" failonerror="false" />
+
+                                <!-- Ejecutar jpackage -->
+                                <echo message="Ejecutando jpackage para crear la imagen de la aplicación portable..." />
+                                <exec executable="${jpackage.cmd}" failonerror="true">
+                                    <arg value="--input" />
+                                    <arg value="${libs.dir}" /> <!-- Ahora apuntamos a la carpeta con todas las JARs -->
+                                    <arg value="--main-jar" />
+                                    <arg value="${project.build.finalName}.jar" /> <!-- El JAR principal de tu app -->
+                                    <arg value="--main-class" />
+                                    <arg value="${app.main.class}" />
+                                    <arg value="--module-path" />
+                                    <arg value="${libs.dir}" /> <!-- Indica a jlink dónde están los módulos de JavaFX -->
+                                    <arg value="--add-modules" />
+                                    <arg value="javafx.controls,javafx.fxml,javafx.graphics,javafx.base,java.desktop,java.logging,java.net.http,java.sql" />
+                                    <arg value="--type" />
+                                    <arg value="app-image" /> <!-- Crea una carpeta portable -->
+                                    <arg value="--dest" />
+                                    <arg value="${jpackage.output.dir}" /> <!-- Directorio de salida para jpackage -->
+                                    <arg value="--name" />
+                                    <arg value="${jpackage.launcher.name}" /> <!-- Este será el nombre del .exe y de la carpeta -->
+                                    <arg value="--app-version" />
+                                    <arg value="${project.version}" />
+                                    <arg value="--vendor" />
+                                    <arg value="${app.vendor}" />
+                                    <arg value="--icon" />
+                                    <arg value="${app.icon}" />
+                                    <!-- Añade aquí cualquier otro argumento de jpackage que necesites -->
+                                </exec>
+
+                                <!-- Comprimir la imagen de la aplicación en un ZIP -->
+                                <echo message="Creando archivo ZIP de la aplicación portable..." />
+                                <zip destfile="${final.zip.path}" basedir="${final.app.image.dir}" />
+                                <echo message="Aplicación portable ZIP creada en: ${final.zip.path}" />
+                            </target>
                         </configuration>
                     </execution>
                 </executions>

@@ -30,6 +30,9 @@
                   <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#showInventory" styleClass="nav-button" text=" Inventario">
                      <graphic><FontIcon iconLiteral="mdi2p-package-variant-closed" iconColor="#00FF88" iconSize="24" /></graphic>
                   </Button>
+                  <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#showReturns" styleClass="nav-button" text=" Devoluciones">
+                     <graphic><FontIcon iconLiteral="mdi2r-receipt" iconColor="#00FF88" iconSize="24" /></graphic>
+                  </Button>
                   <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#showDevices" styleClass="nav-button" text=" Ajustes">
                      <graphic><FontIcon iconLiteral="mdi2c-cog" iconColor="#00FF88" iconSize="24" /></graphic>
                   </Button>
@@ -52,6 +55,14 @@
                   <Button mnemonicParsing="false" onAction="#toggleSidebar" styleClass="icon-button">
                      <graphic><FontIcon iconLiteral="mdi2m-menu" iconColor="#00FF88" iconSize="28" /></graphic>
                   </Button>
+                  <Region HBox.hgrow="ALWAYS" />
+                  <!-- Progress Bar for Updates -->
+                  <VBox alignment="CENTER_RIGHT" spacing="5.0" HBox.hgrow="ALWAYS">
+                     <children>
+                        <Label fx:id="lblDownloadStatus" style="-fx-text-fill: #00FF88; -fx-font-size: 10px;" text="Descargando actualización..." visible="false" />
+                        <ProgressBar fx:id="updateProgressBar" prefWidth="200.0" progress="0.0" visible="false" />
+                     </children>
+                  </VBox>
                </children>
             </HBox>
             <StackPane fx:id="contentArea" VBox.vgrow="ALWAYS" style="-fx-background-color: #0A0A0A;" />

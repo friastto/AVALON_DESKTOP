@@ -78,6 +78,10 @@
                   <TableColumn fx:id="colStatus" prefWidth="100.0" text="ESTADO" />
                   <TableColumn fx:id="colActions" prefWidth="120.0" text="ACCIONES" />
                </columns>
+               <!-- Esto sustituye al atributo problemático -->
+               <columnResizePolicy>
+                  <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+               </columnResizePolicy>
             </TableView>
          </children>
       </VBox>

@@ -20,8 +20,11 @@ import javafx.scene.paint.CycleMethod;
 import javafx.scene.paint.LinearGradient;
 import javafx.scene.paint.Stop;
 import javafx.util.Duration;
+import org.avalon.desktop.auth.domain.model.User;
 import org.avalon.desktop.auth.domain.repository.UserRepository;
-import org.avalon.desktop.ui.navigation.ViewLoader;
+import org.avalon.desktop.auth.domain.service.PasswordHasher; // Import PasswordHasher
+import org.avalon.desktop.ui.SceneManager; // Import SceneManager
+import org.avalon.desktop.ui.navigation.ViewLoader; // Keep ViewLoader if still used for other purposes, though SceneManager will handle main navigation
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -37,12 +40,17 @@ public class LoginController implements Initializable {
     @FXML private Canvas backgroundCanvas;
 
     private final UserRepository userRepository;
-    private final ViewLoader viewLoader;
+    private final PasswordHasher passwordHasher; // Inject PasswordHasher
+    private final SceneManager sceneManager;     // Inject SceneManager
+    private final ViewLoader viewLoader; // Keep if still used for other purposes, e.g., loading sub-views
+
     private double time = 0;
 
     @Inject
-    public LoginController(UserRepository userRepository, ViewLoader viewLoader) {
+    public LoginController(UserRepository userRepository, PasswordHasher passwordHasher, SceneManager sceneManager, ViewLoader viewLoader) {
         this.userRepository = userRepository;
+        this.passwordHasher = passwordHasher;
+        this.sceneManager = sceneManager;
         this.viewLoader = viewLoader;
     }
 
@@ -136,8 +144,27 @@ public class LoginController implements Initializable {
         String password = passwordField.getText();
 
         userRepository.findByUsername(username).ifPresentOrElse(user -> {
-            if (user.password().equals(password)) {
-                viewLoader.loadView("/views/dashboard.fxml", "Avalon POS - Dashboard");
+            // Use PasswordHasher to check the password
+            if (passwordHasher.checkPassword(password, user.password())) {
+                if (user.isFirstLogin()) {
+                    // If it's the first login, show the change credentials dialog
+                    sceneManager.showChangeCredentialsDialog(user);
+                    // After the dialog closes, check if the user is still marked as first login
+                    // This implies the dialog was closed without updating, or an error occurred.
+                    // Re-fetch the user to get the updated status.
+                    userRepository.findByUsername(user.username()).ifPresent(updatedUser -> {
+                        if (!updatedUser.isFirstLogin()) {
+                            sceneManager.showMainDashboard();
+                        } else {
+                            errorLabel.setText("Debes actualizar tus credenciales para continuar.");
+                            // Optionally, clear password field or log out
+                            passwordField.clear();
+                        }
+                    });
+                } else {
+                    // Regular login, proceed to dashboard
+                    sceneManager.showMainDashboard();
+                }
             } else {
                 errorLabel.setText("Contraseña incorrecta");
             }

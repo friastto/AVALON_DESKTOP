@@ -19,14 +19,28 @@
 .status-low { -fx-text-fill: #FFCC00; -fx-font-weight: bold; }
 .status-critical { -fx-text-fill: #FF4444; -fx-font-weight: bold; }
 
-.action-button {
-    -fx-background-color: #1A1A1A;
-    -fx-text-fill: white;
+/* Estilos para el botón de editar */
+.edit-button {
+    -fx-background-color: #adb5bd; /* Gris claro */
+    -fx-text-fill: #0A0A0A; /* Color de texto oscuro para contraste */
+    -fx-icon-color: #0A0A0A; /* Color del icono oscuro para contraste */
     -fx-cursor: hand;
 }
 
-.action-button:hover {
-    -fx-background-color: #2A2A2A;
+.edit-button:hover {
+    -fx-background-color: #99a2aa; /* Un poco más oscuro al pasar el ratón */
+}
+
+/* Estilos para el botón de eliminar */
+.delete-button {
+    -fx-background-color: #ff4444; /* Rojo */
+    -fx-text-fill: white; /* Color de texto blanco para contraste */
+    -fx-icon-color: white; /* Color del icono blanco para contraste */
+    -fx-cursor: hand;
+}
+
+.delete-button:hover {
+    -fx-background-color: #cc3333; /* Un poco más oscuro al pasar el ratón */
 }
 
 .modal-bg {

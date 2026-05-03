@@ -15,6 +15,7 @@ import org.avalon.desktop.product.domain.model.ProductType;
 import org.avalon.desktop.product.domain.repository.ProductRepository;
 import org.avalon.desktop.sales.domain.model.Sale;
 import org.avalon.desktop.sales.domain.model.SaleItem;
+import org.avalon.desktop.sales.domain.model.SaleStatus; // Importar SaleStatus
 import org.avalon.desktop.sales.domain.repository.SaleRepository;
 
 import java.math.BigDecimal;
@@ -127,7 +128,25 @@ public class PosController implements Initializable {
             for (int i = 0; i < cartItems.size(); i++) {
                 if (cartItems.get(i).product().id().equals(product.id())) {
                     double newQty = cartItems.get(i).quantity() + qty;
+                    // Validar stock antes de agregar
+                    if (newQty > product.stock()) {
+                        new Alert(Alert.AlertType.WARNING, "Stock insuficiente para " + product.name()).show();
+                        return;
+                    }
                     cartItems.set(i, new SaleItem(product, newQty, product.price()));
+                    exists = true;
+                    break;
+                }
+            }
+        } else { // Productos pesables siempre se añaden como nueva línea o se actualiza la existente si es el mismo producto
+            // Para pesables, si ya está en el carrito, se podría sumar el peso o reemplazarlo.
+            // Por simplicidad, aquí lo añadimos como una nueva línea si el ID es diferente,
+            // o actualizamos si es el mismo producto y se vuelve a pesar.
+            // Una lógica más compleja podría preguntar si sumar o reemplazar.
+            for (int i = 0; i < cartItems.size(); i++) {
+                if (cartItems.get(i).product().id().equals(product.id())) {
+                    // Si ya existe un producto pesable, actualizamos su cantidad con el nuevo peso
+                    cartItems.set(i, new SaleItem(product, qty, product.price()));
                     exists = true;
                     break;
                 }
@@ -135,10 +154,16 @@ public class PosController implements Initializable {
         }
 
         if (!exists) {
+            // Validar stock antes de agregar
+            if (product.stock() < qty) {
+                new Alert(Alert.AlertType.WARNING, "Stock insuficiente para " + product.name()).show();
+                return;
+            }
             cartItems.add(new SaleItem(product, qty, product.price()));
         }
 
         updateTotal();
+        scannerField.requestFocus();
     }
 
     private double getSelectedQuantity() {
@@ -161,16 +186,20 @@ public class PosController implements Initializable {
             .map(item -> item.price().multiply(BigDecimal.valueOf(item.quantity())))
             .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        Sale sale = new Sale(null, LocalDateTime.now(), total, new ArrayList<>(cartItems));
+        // Al guardar la venta, también se guarda el estado inicial
+        Sale sale = new Sale(null, LocalDateTime.now(), total, new ArrayList<>(cartItems), SaleStatus.COMPLETED);
         saleRepository.save(sale);
         
         for (SaleItem item : cartItems) {
-            productRepository.updateStock(item.product().id(), (int) -Math.ceil(item.quantity()));
+            // Restamos el stock. Para pesables, restamos el double. Para unitarios, también.
+            productRepository.updateStock(item.product().id(), -item.quantity());
         }
 
         cartItems.clear();
         updateTotal();
         refreshProductList();
+        scannerField.requestFocus();
+
         new Alert(Alert.AlertType.INFORMATION, "Venta Completada").show();
     }
 }

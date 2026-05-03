@@ -17,6 +17,7 @@ public record ReleaseInfo(
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record Asset(
         @JsonProperty("name") String name,
-        @JsonProperty("browser_download_url") String browserDownloadUrl
+        @JsonProperty("browser_download_url") String browserDownloadUrl,
+        @JsonProperty("size") long size // Añadido el campo 'size'
     ) {}
 }

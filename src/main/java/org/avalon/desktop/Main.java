@@ -11,14 +11,44 @@ import org.avalon.desktop.config.AppModule;
 import org.avalon.desktop.core.update.UpdateService;
 import org.avalon.desktop.core.update.github.ReleaseInfo;
 import org.avalon.desktop.ui.navigation.ViewLoader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.net.URISyntaxException;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 public class Main extends Application {
 
+    private static final Logger logger = LoggerFactory.getLogger(Main.class);
+
     @Override
     public void start(Stage primaryStage) {
-        System.out.println("✅ Entrando a start()");
+        // --- NUEVO FLUJO DE ACTUALIZACIÓN AL INICIO ---
+        // Verificar si hay un script de actualización pendiente y ejecutarlo
+        Path updateScriptPath = UpdateService.getUpdateScriptPath(); // Acceder al método estático
+        if (Files.exists(updateScriptPath)) {
+            try {
+                logger.info("Script de actualización pendiente encontrado: {}. Ejecutando y cerrando la aplicación actual.", updateScriptPath);
+                ProcessBuilder pb = new ProcessBuilder("cmd.exe", "/c", updateScriptPath.toAbsolutePath().toString());
+                pb.start();
+
+                Platform.exit(); // Cerrar la aplicación actual para que el script tome el control
+                System.exit(0);
+                return; // Salir del método start()
+            } catch (IOException e) {
+                logger.error("Error al ejecutar el script de actualización pendiente: {}", updateScriptPath, e);
+                // Si falla, la aplicación continúa con el inicio normal, pero con un error.
+                // Podrías mostrar un Alert aquí si lo deseas.
+            }
+        }
+        // --- FIN DEL NUEVO FLUJO DE ACTUALIZACIÓN AL INICIO ---
+
+
+        logger.info("✅ Entrando a start()");
         Injector injector = Guice.createInjector(new AppModule());
         
         ViewLoader viewLoader = injector.getInstance(ViewLoader.class);
@@ -26,27 +56,57 @@ public class Main extends Application {
         
         UpdateService updateService = injector.getInstance(UpdateService.class);
         
-        // Ejecutar verificación en hilo separado para no bloquear el inicio
         new Thread(() -> {
-
             Optional<ReleaseInfo> newRelease = updateService.checkForUpdates();
 
-            System.out.println("entro en modo buscar release de git ");
+            logger.info("entro en modo buscar release de git ");
             Platform.runLater(() -> {
                 if (newRelease.isPresent()) {
                     Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
                     alert.setTitle("Actualización Disponible");
                     alert.setHeaderText("Nueva versión " + newRelease.get().tagName() + " disponible.");
-                    alert.setContentText("¿Desea descargar e instalar la actualización ahora?");
+                    alert.setContentText("¿Desea descargar la actualización ahora? Se aplicará la próxima vez que inicie la aplicación.");
                     
-                    alert.showAndWait().ifPresent(response -> {
-                        if (response == ButtonType.OK) {
-                            updateService.downloadAndApply(newRelease.get());
-                        } else {
-                            viewLoader.loadView("/views/login.fxml", "Avalon Desktop - Login");
-                        }
-                    });
+                    Optional<ButtonType> response = alert.showAndWait();
+
+                    if (response.isPresent() && response.get() == ButtonType.OK) {
+                        CompletableFuture<Path> downloadFuture = updateService.downloadAndApply(newRelease.get());
+                        downloadFuture.whenComplete((downloadedPath, throwable) -> {
+                            Platform.runLater(() -> {
+                                if (throwable == null) {
+                                    // Descarga exitosa, crear el script de actualización
+                                    try {
+                                        updateService.createUpdateScript(downloadedPath);
+                                        Alert infoAlert = new Alert(Alert.AlertType.INFORMATION);
+                                        infoAlert.setTitle("Actualización Descargada");
+                                        infoAlert.setHeaderText("Actualización lista para instalar.");
+                                        infoAlert.setContentText("La nueva versión se ha descargado y se aplicará la próxima vez que inicie la aplicación.");
+                                        infoAlert.showAndWait();
+                                    } catch (IOException | URISyntaxException | IllegalStateException e) {
+                                        logger.error("Error al crear el script de actualización: {}", e.getMessage(), e);
+                                        Alert errorApplyAlert = new Alert(Alert.AlertType.ERROR);
+                                        errorApplyAlert.setTitle("Error de Actualización");
+                                        errorApplyAlert.setHeaderText("No se pudo preparar la actualización.");
+                                        errorApplyAlert.setContentText("Ocurrió un error: " + e.getMessage() + "\nPor favor, contacte a soporte.");
+                                        errorApplyAlert.showAndWait();
+                                    }
+                                } else {
+                                    // Error en la descarga
+                                    Alert errorAlert = new Alert(Alert.AlertType.ERROR);
+                                    errorAlert.setTitle("Error de Descarga");
+                                    errorAlert.setHeaderText("No se pudo descargar la actualización.");
+                                    errorAlert.setContentText("Ocurrió un error: " + throwable.getMessage());
+                                    errorAlert.showAndWait();
+                                }
+                            });
+                        });
+                    } 
+                    // Mover la carga del login aquí, fuera del if/else del response, pero dentro del Platform.runLater
+                    // Esto asegura que el login se carga después de que el usuario interactúa con el alert inicial
+                    viewLoader.loadView("/views/login.fxml", "Avalon Desktop - Login");
+
                 } else {
+                    // No hay actualizaciones, cargar la vista de login directamente
                     viewLoader.loadView("/views/login.fxml", "Avalon Desktop - Login");
                 }
             });
@@ -54,12 +114,12 @@ public class Main extends Application {
     }
 
     public static void main(String[] args) {
-        System.out.println("🚀 Iniciando AvalonDesktop...");
+        System.setProperty("jssc.tmpdir", System.getProperty("user.home") + "/AppData/Local/AvalonDesktop/jSerialComm_native");
+        logger.info("🚀 Iniciando AvalonDesktop...");
         try {
             launch(args);
         } catch (Exception e) {
-            System.err.println("❌ Error en launch:");
-            e.printStackTrace();
+            logger.error("❌ Error en launch:", e);
         }
     }
 }
